@@ -30,7 +30,7 @@
   <div id="canvas" style="position: absolute;top:0;left:0; width: 100%; height: 100%; top: 0px; left: 0px;margin:0;padding:0;border:0"></div>
 
     
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script src="jquery-3.7.1.min.js"></script>
 
   <script type="text/javascript" src="raphael.js"></script>
   <script type="text/javascript" src="datastore.js"></script>
@@ -228,17 +228,19 @@
         src.pos[1] + stage.y
       ]
       this.root = new Root(src.angle, pos);
-      (function(parent, children){
+      function build(parent, children){
         for(var i = 0; i < children.length; i++){
-          var child = children[i]
+          var child = children[i];
+          var el;
           if(child.type == "line"){
-            var el = new Line(parent, child.angle, child.length, child.width, child.color)
+            el = new Line(parent, child.angle, child.length, child.width, child.color);
           }else if(child.type == "circle"){
-            var el = new Circle(parent, child.angle, child.length, child.width, child.color)
+            el = new Circle(parent, child.angle, child.length, child.width, child.color);
           }
-          arguments.callee(el, child.children); //recurse
+          build(el, child.children); //recurse
         }
-      })(this.root, src.children);
+      }
+      build(this.root, src.children);
       
       this.root.renderAll();
     }
@@ -289,12 +291,13 @@
   
     Root.prototype.all = function(){
       var all = [];
-      (function(children){
+      function gather(children){
         for(var i = 0; i < children.length; i++){
           all.push(children[i]);
-          arguments.callee(children[i].children)
+          gather(children[i].children);
         }
-      })(this.children);
+      }
+      gather(this.children);
       return all
     }
     Root.prototype.save = function(){
@@ -560,7 +563,7 @@
         }
       });
       
-$("a").live("click", function(e){
+$(document).on("click", "a", function(e){
 	e.preventDefault();
 	
 	return false;
@@ -627,18 +630,20 @@ $("a").live("click", function(e){
       this.allset = allset;
       this.root.pos = [this.root.pos[0] * scale, this.root.pos[1] * scale];
       //this.root.shape.scale(0.1,0.1,0,0)
-      (function(parent, children){
+      function buildScaled(parent, children){
         for(var i = 0; i < children.length; i++){
-          var child = children[i]
+          var child = children[i];
+          var el;
           if(child.type == "line"){
-            var el = new Line(parent, child.angle, child.length * scale, child.width * scale, child.color, true)
+            el = new Line(parent, child.angle, child.length * scale, child.width * scale, child.color, true);
           }else if(child.type == "circle"){
-            var el = new Circle(parent, child.angle, child.length * scale, child.width * scale, child.color, true)
+            el = new Circle(parent, child.angle, child.length * scale, child.width * scale, child.color, true);
           }
-          allset.push(el.shape)
-          arguments.callee(el, child.children); //recurse
+          allset.push(el.shape);
+          buildScaled(el, child.children); //recurse
         }
-      })(this.root, src.children);
+      }
+      buildScaled(this.root, src.children);
       
       this.root.renderAll();
     }
@@ -899,7 +904,7 @@ $("a").live("click", function(e){
         }
         play_frame(current_frame);
        
-        setTimeout(arguments.callee, 1000/fps);
+        setTimeout(autoplay, 1000/fps);
       }else{
         exit_playback()
       }
@@ -934,10 +939,10 @@ $("a").live("click", function(e){
         $('#timescroll')[0].scrollLeft=100000000; //big number scrolls to end.
       })
       
-      $("#timeline td.border").live("click",function(){
-				if(playback){
-					exit_playback();
-				}
+      $(document).on("click", "#timeline td.border", function(){
+                                if(playback){
+                                        exit_playback();
+                                }
         selectFrame($(this).find(".frame").data("framenum"))
         
       })
@@ -1027,15 +1032,15 @@ function share(img, callback){
     // upload to imgur using jquery/CORS
     // https://developer.mozilla.org/En/HTTP_access_control
     $.ajax({
-        url: 'http://api.imgur.com/2/upload.json',
+        url: 'https://api.imgur.com/2/upload.json',
         type: 'POST',
         data: {
             type: 'base64',
-            // get your key here, quick and fast http://imgur.com/register/api_anon
+            // get your key here, quick and fast https://imgur.com/register/api_anon
             key: '463e55785ac6064f0035e0af5dde7406',
             name: (new Date).toString().split(' ').slice(1, 5).join('-') + '.gif',
             title: 'Generated with Stick2',
-            caption: 'http://antimatter15.com/ajaxanimator/stick2/stick2.html',
+            caption: 'https://antimatter15.com/ajaxanimator/stick2/stick2.html',
             image: img
         },
         dataType: 'json'
@@ -1158,7 +1163,7 @@ function inflate_shape(obj){
 				// alert("done saving animation ID: "+type)
 
 
-        var el = $('<div>Done saving animation <b>'+type+'</b>.<br><a target="_blank" href="http://antimatter15.com/ajaxanimator/stick2/player.html?'+type+'">http://antimatter15.com/ajaxanimator/stick2/player.html?'+type+'</a><br></div>').css({'z-index':99999,position:'absolute', top: '100px', left: '100px', 'background-color': 'white', padding: '40px', border: '1px solid black'}).append($('<button>Close</button>').click(function(){
+        var el = $('<div>Done saving animation <b>'+type+'</b>.<br><a target="_blank" href="https://antimatter15.com/ajaxanimator/stick2/player.html?'+type+'">https://antimatter15.com/ajaxanimator/stick2/player.html?'+type+'</a><br></div>').css({'z-index':99999,position:'absolute', top: '100px', left: '100px', 'background-color': 'white', padding: '40px', border: '1px solid black'}).append($('<button>Close</button>').click(function(){
           el.remove();
         })).appendTo('body')
 			})
@@ -1195,7 +1200,7 @@ function inflate_shape(obj){
     
 function loadfromurl(url){
   var script = document.createElement('script');
-  script.src = 'http://simple-datastore.appspot.com/'+'get/'+url+'?callback=public_expand_save';
+  script.src = 'https://simple-datastore.appspot.com/'+'get/'+url+'?callback=public_expand_save';
   document.body.appendChild(script);
 }
 

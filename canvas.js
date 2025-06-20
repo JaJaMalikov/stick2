@@ -10,18 +10,20 @@ function canvas_render_frame(frame, context){
 }
 
 function CanvasDrawFigure(src, context){
-	var root = new CanvasRoot(context, src.angle, src.pos);
-	(function(children, anchor){
-		for(var i = 0; i < children.length; i++){
-			var s = children[i]
-			if(s.type == "line"){
-				var n = new CanvasLine(anchor, s.angle, s.length, s.width, s.color)
-			}else if(s.type == "circle"){
-				var n = new CanvasCircle(anchor, s.angle, s.length, s.width, s.color)
-			}
-			arguments.callee(s.children, n)
-		}
-	})(src.children, root)
+        var root = new CanvasRoot(context, src.angle, src.pos);
+        function build(children, anchor){
+                for(var i = 0; i < children.length; i++){
+                        var s = children[i];
+                        var n;
+                        if(s.type == "line"){
+                                n = new CanvasLine(anchor, s.angle, s.length, s.width, s.color);
+                        }else if(s.type == "circle"){
+                                n = new CanvasCircle(anchor, s.angle, s.length, s.width, s.color);
+                        }
+                        build(s.children, n);
+                }
+        }
+        build(src.children, root);
 }
 
 
