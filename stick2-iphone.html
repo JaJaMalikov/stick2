@@ -18,7 +18,7 @@
   <div id="canvas" style="position: absolute;top:0;left:0; width: 100%; height: 100%; top: 0px; left: 0px;margin:0;padding:0;border:0"></div> 
  
     
-  <script type="text/javascript" src="jquery-1.4.2.min.js"></script> 
+  <script type="text/javascript" src="jquery-3.7.1.min.js"></script>
   <script type="text/javascript" src="raphael.js"></script> 
   <script type="text/javascript" src="datastore.js"></script> 
   <script type="text/javascript" src="colorwheel.js"></script> 
@@ -211,17 +211,19 @@
         src.pos[1] + stage.y
       ]
       this.root = new Root(src.angle, pos);
-      (function(parent, children){
+      function build(parent, children){
         for(var i = 0; i < children.length; i++){
-          var child = children[i]
+          var child = children[i];
+          var el;
           if(child.type == "line"){
-            var el = new Line(parent, child.angle, child.length, child.width, child.color)
+            el = new Line(parent, child.angle, child.length, child.width, child.color);
           }else if(child.type == "circle"){
-            var el = new Circle(parent, child.angle, child.length, child.width, child.color)
+            el = new Circle(parent, child.angle, child.length, child.width, child.color);
           }
-          arguments.callee(el, child.children); //recurse
+          build(el, child.children); //recurse
         }
-      })(this.root, src.children);
+      }
+      build(this.root, src.children);
       
       this.root.renderAll();
     }
@@ -272,12 +274,13 @@
   
     Root.prototype.all = function(){
       var all = [];
-      (function(children){
+      function gather(children){
         for(var i = 0; i < children.length; i++){
           all.push(children[i]);
-          arguments.callee(children[i].children)
+          gather(children[i].children);
         }
-      })(this.children);
+      }
+      gather(this.children);
       return all
     }
     Root.prototype.save = function(){
@@ -549,7 +552,7 @@
         }
       });
       
-$("a").live("click", function(e){
+$(document).on("click", "a", function(e){
 	e.preventDefault();
 	
 	return false;
@@ -616,18 +619,20 @@ $("a").live("click", function(e){
       this.allset = allset;
       this.root.pos = [this.root.pos[0] * scale, this.root.pos[1] * scale];
       //this.root.shape.scale(0.1,0.1,0,0)
-      (function(parent, children){
+      function buildScaled(parent, children){
         for(var i = 0; i < children.length; i++){
-          var child = children[i]
+          var child = children[i];
+          var el;
           if(child.type == "line"){
-            var el = new Line(parent, child.angle, child.length * scale, child.width * scale, child.color, true)
+            el = new Line(parent, child.angle, child.length * scale, child.width * scale, child.color, true);
           }else if(child.type == "circle"){
-            var el = new Circle(parent, child.angle, child.length * scale, child.width * scale, child.color, true)
+            el = new Circle(parent, child.angle, child.length * scale, child.width * scale, child.color, true);
           }
-          allset.push(el.shape)
-          arguments.callee(el, child.children); //recurse
+          allset.push(el.shape);
+          buildScaled(el, child.children); //recurse
         }
-      })(this.root, src.children);
+      }
+      buildScaled(this.root, src.children);
       
       this.root.renderAll();
     }
@@ -892,7 +897,7 @@ $("a").live("click", function(e){
         }
         play_frame(current_frame);
        
-        setTimeout(arguments.callee, 1000/fps);
+        setTimeout(autoplay, 1000/fps);
       }else{
         exit_playback()
       }
@@ -939,10 +944,10 @@ $("a").live("click", function(e){
         //$("#next")[0].scrollIntoView()
       })
       
-      $("#timeline td.border").live("click",function(){
-				if(playback){
-					exit_playback();
-				}
+      $(document).on("click", "#timeline td.border", function(){
+                                if(playback){
+                                        exit_playback();
+                                }
         selectFrame($(this).find(".frame").data("framenum"))
         
       })
