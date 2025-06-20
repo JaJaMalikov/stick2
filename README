@@ -64,3 +64,7 @@ big prompt-box which you use to paste in the ID of the animation
 you (or someone else) has saved, so you can edit it. Most of the 
 time that's useless as when you send a link with the player, it 
 has a button which says "Edit".
+
+## Modernization
+
+The repository now includes modernized modules `autopost-modern.js` and `b64-modern.js`. These provide updated implementations of their older counterparts using ES6 syntax.
